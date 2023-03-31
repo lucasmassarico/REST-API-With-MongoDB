@@ -1,14 +1,26 @@
 from flask import jsonify
 from pymongo import MongoClient
+import os
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+username = os.environ.get("MONGODB_USER")
+password = os.environ.get("MONGODB_PWD")
+connection_string = f'mongodb+srv://{username}:{password}@cluster.5ougas6.mongodb.net/?retryWrites=true&w=majority'
 
 
 class ComputerModel:
-    client = MongoClient('mongodb+srv://<username>:<password>@cluster0.bggwtjv.mongodb.net/db_api_learn')
-    db = client['test_database']
-    collection = db['User']
+    client = MongoClient(connection_string)
+    db = client['apiwithmongo']
+    try:
+        db.validate_collection('Computer')
+    except Exception as e:
+        print(e)
+    computer_collection = db['Computer']
 
-    def __init__(self, id, responsavel, departamento, tipo, processador, memoria, tp_arm, qnt_arm, modelo, ultimo_dono, data_transferencia):
-        self._id = id
+    def __init__(self, computer_id, responsavel, departamento, tipo, processador, memoria, tp_arm, qnt_arm, modelo,
+                 ultimo_dono, data_transferencia):
+        self._id = computer_id
         self.responsavel = responsavel
         self.departamento = departamento
         self.tipo = tipo
@@ -37,7 +49,7 @@ class ComputerModel:
 
     @classmethod
     def find_computer(cls, computer_id):
-        computer = cls.collection.find_one({"_id": computer_id})
+        computer = cls.computer_collection.find_one({"_id": computer_id})
         if computer:
             # gambiarra
             # computer['data_transferencia'] = computer['data_transferencia'].strftime("%d-%m-%Y")
@@ -46,14 +58,13 @@ class ComputerModel:
 
     @classmethod
     def find_all_computers(cls):
-        computers = list(cls.collection.find())
+        computers = list(cls.computer_collection.find())
         if computers:
             return computers
         return None
 
     def save_computer(self):
-        # realizar o procedimento passando apenas o self
-        self.collection.insert_one({
+        self.computer_collection.insert_one({
             "_id": self._id,
             "responsavel": self.responsavel,
             "departamento": self.departamento,
@@ -69,7 +80,7 @@ class ComputerModel:
         return jsonify(self.json())
 
     def update_computer(self):
-        computer = self.collection.update_one({"_id": self._id}, {'$set': {
+        computer = self.computer_collection.update_one({"_id": self._id}, {'$set': {
             "responsavel": self.responsavel,
             "departamento": self.departamento,
             "tipo": self.tipo,
@@ -86,4 +97,4 @@ class ComputerModel:
 
     @classmethod
     def delete_computer(cls, computer_id):
-        return cls.collection.delete_one({"_id": computer_id})
+        return cls.computer_collection.delete_one({"_id": computer_id})

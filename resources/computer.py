@@ -7,7 +7,10 @@ from models.computer import ComputerModel
 # localhost:6500/computers
 class Computers(Resource):
     def get(self):
-        return {'computers': [computer for computer in ComputerModel.find_all_computers()]}
+        computers = ComputerModel.find_all_computers()
+        if computers:
+            return {'computers': [computer for computer in computers]}
+        return {'message': "Dont have any 'computer' document in collection."}
 
 
 # localhost:6500/computers/<id>
@@ -40,7 +43,7 @@ class Computer(Resource):
         try:
             computer.save_computer()
         except:
-            return {"message": "An error ocurred trying to 'create' computer."}, 500  # Internal Server Error
+            return {"message": "An error occurred trying to 'create' computer."}, 500  # Internal Server Error
         return computer.json(), 201
 
     def put(self, computer_id):
@@ -52,11 +55,11 @@ class Computer(Resource):
                 computer.update_computer()
                 return computer.json(), 200
             except:
-                return {"message": "An error ocurred trying to 'update' computer."}, 500
+                return {"message": "An error occurred trying to 'update' computer."}, 500
         try:
             computer.save_computer()
         except:
-            return {"message": "An error ocurred trying to 'create' computer."}, 500
+            return {"message": "An error occurred trying to 'create' computer."}, 500
         return computer.json(), 201
 
     def delete(self, computer_id):
