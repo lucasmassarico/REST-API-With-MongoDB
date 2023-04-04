@@ -98,3 +98,62 @@ class ComputerModel:
     @classmethod
     def delete_computer(cls, computer_id):
         return cls.computer_collection.delete_one({"_id": computer_id})
+
+    # com a evolução do sistema, podemos criar um POST que realiza o update da validação do documento
+    @classmethod
+    def update_collection_validator(cls):
+        computer_validator = {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "title": "Computer Object Validation",
+                "required": ["_id", "responsavel", "departamento"],
+                "properties": {
+                    "_id": {
+                        "bsonType": "int",
+                        "description": "'_id' must be a integer and is required"
+                    },
+                    "responsavel": {
+                        "bsonType": "string",
+                        "description": "'responsavel' must be a string and is required",
+                        "pattern": "^[A-Za-z]+$"
+                    },
+                    "departamento": {
+                        "bsonType": "string",
+                        "description": "'departamento' must be a string and is required"
+                    },
+                    "tipo": {
+                        "bsonType": "string",
+                        "description": "'tipo' must be a string"
+                    },
+                    "processador": {
+                        "bsonType": "string",
+                        "description": "'processador' must be a string"
+                    },
+                    "memoria": {
+                        "bsonType": "int",
+                        "description": "'memoria' must be a int"
+                    },
+                    "tp_arm": {
+                        "bsonType": "string",
+                        "description": "'tp_arm' must be a string"
+                    },
+                    "qnt_arm": {
+                        "bsonType": "int",
+                        "description": "'qnt_arm' must be a int"
+                    },
+                    "modelo": {
+                        "bsonType": "string",
+                        "description": "'modelo' must be a string"
+                    },
+                    "ultimo_dono": {
+                        "bsonType": "string",
+                        "description": "'ultimo_dono' must be a string"
+                    },
+                    "data_transferencia": {
+                        "bsonType": "string",
+                        "description": "'data_transferencia' must be a string"
+                    }
+                }
+            }
+        }
+        cls.db.command("collMod", "Computer", validator=computer_validator)
